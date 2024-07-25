@@ -1,6 +1,10 @@
-# from django.contrib import admin
+from django.contrib import admin
 # from .models import related models
+from .models import CarMake, CarModel
 
+# Registrar los modelos con sus respectivos admins
+admin.site.register(CarMake)
+admin.site.register(CarModel)
 
 # Register your models here.
 
