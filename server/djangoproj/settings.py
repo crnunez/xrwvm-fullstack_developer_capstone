@@ -35,6 +35,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [],
 }
 
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+BACKEND_URL = os.getenv('BACKEND_URL')
+SENTIMENT_ANALYZER_URL = os.getenv('SENTIMENT_ANALYZER_URL')
+
 # Application definition
 
 INSTALLED_APPS = [
