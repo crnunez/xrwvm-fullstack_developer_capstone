@@ -1,55 +1,46 @@
-name: CI
+name: 'Lint Code'
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [master, main]
   pull_request:
-    branches:
-      - main
-      - master
+    branches: [master, main]
 
 jobs:
   lint:
+    name: Lint Python Files
     runs-on: windows-latest
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.10
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8
-
-    - name: Print working directory
-      run: echo $(pwd)
-
-    - name: Run Linter
-      run: |
-        # Find all Python files recursively and run flake8 on them
-        Get-ChildItem -Recurse -Include *.py | ForEach-Object { flake8 $_.FullName }
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+      - name: Print working directory
+        run: pwd
+      - name: Run Linter
+        run: |
+          # This command finds all Python files recursively and runs flake8 on them
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
   lint_js:
+    name: Lint JavaScript Files
     runs-on: windows-latest
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-
-    - name: Install dependencies
-      run: npm install jshint -g
-
-    - name: Run Linter
-      run: |
-        # Find all JavaScript files recursively and run jshint on them
-        Get-ChildItem -Recurse -Include *.js | ForEach-Object { jshint $_.FullName }
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+      - name: Install dependencies
+        run: npm install -g jshint
+      - name: Run JSHint
+        run: |
+          # This command finds all JavaScript files recursively and runs JSHint on them
+          jshint **/*.js
