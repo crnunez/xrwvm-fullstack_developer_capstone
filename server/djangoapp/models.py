@@ -15,24 +15,23 @@ class CarMake(models.Model):
         return self.name  # Retornar el nombre como representación en string
 
 class CarModel(models.Model):
-    car_make = models.ForeignKey(CarMake, on_delete=models.CASCADE)  # Relación Many-to-One
+    car_make = models.ForeignKey(CarMake, on_delete=models.CASCADE)  # Many-to-One relationship
     name = models.CharField(max_length=100)
     CAR_TYPES = [
         ('SEDAN', 'Sedan'),
         ('SUV', 'SUV'),
         ('WAGON', 'Wagon'),
-        # Añadir más opciones si es necesario
+        # Add more choices as required
     ]
     type = models.CharField(max_length=10, choices=CAR_TYPES, default='SUV')
-    year = models.IntegerField(default=2023, validators=[
-        MaxValueValidator(2023),
-        MinValueValidator(2015)
-    ])
-    # Otros campos que consideres necesarios
-
+    year = models.IntegerField(default=2023,
+        validators=[
+            MaxValueValidator(2023),
+            MinValueValidator(2015)
+        ])
+    # Other fields as needed
     def __str__(self):
-        return f"{self.car_make.name} {self.name}"  # Retornar la marca y el modelo como representación en string
-    
+        return self.name  # Return the name as the string representation
 
 # <HINT> Create a Car Make model `class CarMake(models.Model)`:
 # - Name
@@ -50,3 +49,24 @@ class CarModel(models.Model):
 # - Year (IntegerField) with min value 2015 and max value 2023
 # - Any other fields you would like to include in car model
 # - __str__ method to print a car make object
+class Dealer(models.Model):
+    full_name = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    address = models.CharField(max_length=200)
+    zip = models.CharField(max_length=20)
+    state = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.full_name
+
+class Review(models.Model):
+    dealer = models.ForeignKey(Dealer, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    review = models.TextField()
+    sentiment = models.CharField(max_length=20)
+    car_make = models.CharField(max_length=100)
+    car_model = models.CharField(max_length=100)
+    car_year = models.IntegerField(validators=[MinValueValidator(1886), MaxValueValidator(now().year)])  # Example range
+
+    def __str__(self):
+        return self.name

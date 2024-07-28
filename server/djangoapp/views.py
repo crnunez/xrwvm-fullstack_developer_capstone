@@ -14,7 +14,7 @@ import logging
 import json
 from django.views.decorators.csrf import csrf_exempt
 # from .populate import initiate
-from .models import CarMake, CarModel
+from .models import CarMake, CarModel, Dealer, Review
 from .populate import initiate  # Asegúrate de importar initiate
 from django.http import JsonResponse
 from .restapis import get_request, analyze_review_sentiments, post_review
@@ -26,33 +26,50 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 # Obtener todos los concesionarios o por estado
-def get_dealerships(request, state="All"):
-    if state == "All":
-        endpoint = "/fetchDealers"
+# Proporcionar la lista de concesionarios en formato JSON
+
+def get_dealerships(request, state=None):
+    if state:
+        dealerships = Dealer.objects.filter(state=state)
     else:
-        endpoint = f"/fetchDealers/{state}"
-    dealerships = get_request(endpoint)
-    return JsonResponse({"status": 200, "dealers": dealerships})
+        dealerships = Dealer.objects.all()
+    dealerships_list = list(dealerships.values('id', 'full_name', 'city', 'state', 'address', 'zip'))
+    return JsonResponse(dealerships_list, safe=False)
+
+# Proporcionar los detalles de un concesionario en formato JSON
+def dealer_detail(request, dealer_id):
+    dealer = get_object_or_404(Dealer, pk=dealer_id)
+    dealer_data = {
+        'id': dealer.id,
+        'full_name': dealer.full_name,
+        'city': dealer.city,
+        'address': dealer.address,
+        'zip': dealer.zip,
+        'state': dealer.state,
+    }
+    return JsonResponse(dealer_data)
 
 # Obtener detalles de un concesionario por su ID
-def get_dealer_details(request, dealer_id):
-    if dealer_id:
-        endpoint = f"/fetchDealer/{dealer_id}"
-        dealership = get_request(endpoint)
-        return JsonResponse({"status": 200, "dealer": dealership})
-    else:
-        return JsonResponse({"status": 400, "message": "Bad Request"})
+#def get_dealer_details(request, dealer_id):
+#    if dealer_id:
+#        endpoint = f"/fetchDealer/{dealer_id}"
+#        dealership = get_request(endpoint)
+#        return JsonResponse({"status": 200, "dealer": dealership})
+#    else:
+#        return JsonResponse({"status": 400, "message": "Bad Request"})
 
 # Obtener reseñas de un concesionario por su ID
 def get_dealer_reviews(request, dealer_id):
     if dealer_id:
         endpoint = "/fetchReviews/dealer/" + str(dealer_id)
         reviews = get_request(endpoint)
+        reviews_list = list(reviews.values('id', 'name', 'review', 'purchase', 'purchase_date', 'car_make', 'car_model', 'car_year', 'sentiment'))
         for review_detail in reviews:
-            response = analyze_review_sentiments(review_detail['review'])
-            print(response)
-            review_detail['sentiment'] = response['sentiment']
-        return JsonResponse({"status": 200, "reviews": reviews})
+            #response = analyze_review_sentiments(review_detail['review'])
+            #print(response+)
+            print("adf")
+            #review_detail['sentiment'] = response['sentiment']
+        return JsonResponse({"status": 200, "reviews": reviews + reviews_list})
     else:
         return JsonResponse({"status": 400, "message": "Bad Request"})
 
@@ -130,10 +147,18 @@ def get_cars(request):
 # a list of dealerships
 # def get_dealerships(request):
 # ...
+# Update the `get_dealerships` view to render the index page with a list of dealerships
+# Proporcionar la lista de concesionarios en formato JSON
+def get_dealerships(request):
+    dealerships = Dealer.objects.all()
+    dealerships_list = list(dealerships.values('id', 'full_name', 'city', 'state', 'address', 'zip'))
+    return JsonResponse(dealerships_list, safe=False)
+
+
 
 # Create a `get_dealer_reviews` view to render the reviews of a dealer
 # def get_dealer_reviews(request,dealer_id):
-# ...
+
 
 # Create a `get_dealer_details` view to render the dealer details
 # def get_dealer_details(request, dealer_id):
@@ -157,3 +182,23 @@ def add_review(request):
             return JsonResponse({"status": 403, "message": "Unauthorized"})
     else:
         return JsonResponse({"status": 405, "message": "Method Not Allowed"})
+
+
+def get_dealer(request, dealer_id):
+    try:
+        dealer = Dealer.objects.get(id=dealer_id)
+        dealer_data = {
+            'full_name': dealer.full_name,
+            'city': dealer.city,
+            'address': dealer.address,
+            'zip': dealer.zip,
+            'state': dealer.state,
+        }
+        return JsonResponse({'status': 200, 'dealer': dealer_data})
+    except Dealer.DoesNotExist:
+        return JsonResponse({'status': 404, 'message': 'Dealer not found'})
+
+def get_reviews(request, dealer_id):
+    reviews = Review.objects.filter(dealer_id=dealer_id)
+    reviews_data = list(reviews.values('name', 'review', 'sentiment', 'car_make', 'car_model', 'car_year'))
+    return JsonResponse({'status': 200, 'reviews': reviews_data})

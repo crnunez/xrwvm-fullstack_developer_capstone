@@ -39,6 +39,14 @@ const reviewSchema = new Schema({
         type: Number,
         required: true
     },
+    sentiment: {  // Asegúrate de que este campo está incluido
+        type: String,
+        required: false
+    },
+    sentiment_raw: {
+        type: String,
+        required: false
+    },
 });
 
 module.exports = mongoose.model('Review', reviewSchema);

@@ -1,8 +1,8 @@
-# Uncomment the imports below before you add the function code
 import requests
 import os
 from dotenv import load_dotenv
-from django.conf import settings #puesto por mi
+from django.conf import settings
+from django.http import JsonResponse
 
 load_dotenv()
 
@@ -13,7 +13,7 @@ sentiment_analyzer_url = os.getenv(
     default="https://sentianalyzer.1jv1vr3kppbk.us-east.codeengine.appdomain.cloud/")
 
 
-# Add code for get requests to back end
+#  Add code for get requests to back end
 def get_request(endpoint, **kwargs):
     params = ""
     if kwargs:
@@ -24,12 +24,12 @@ def get_request(endpoint, **kwargs):
     try:
         response = requests.get(request_url)
         return response.json()
-    except:
-        print("Network exception occurred")
+    except Exception as e:
+        print(e + "Network exception occurred")
 
-# def analyze_review_sentiments(text):
-# request_url = sentiment_analyzer_url+"analyze/"+text
-# Add code for retrieving sentiments
+#  def analyze_review_sentiments(text):
+#  request_url = sentiment_analyzer_url+"analyze/"+text
+#  Add code for retrieving sentiments
 
 
 def analyze_review_sentiments(text):
@@ -41,9 +41,11 @@ def analyze_review_sentiments(text):
         print(f"Unexpected {err=}, {type(err)=}")
         print("Network exception occurred")
 
-# def post_review(data_dict):
-# Add code for posting review
-# Create a `get_dealer_reviews` method
+#  def post_review(data_dict):
+#  Add code for posting review
+#  Create a `get_dealer_reviews` method
+
+
 def get_dealer_reviews(request, dealer_id):
     if dealer_id:
         endpoint = f"/fetchReviews/dealer/{dealer_id}"
@@ -54,12 +56,13 @@ def get_dealer_reviews(request, dealer_id):
         return JsonResponse({"status": 200, "reviews": reviews})
     else:
         return JsonResponse({"status": 400, "message": "Bad Request"})
-    
+
+
 def post_review(data_dict):
     request_url = f"{settings.BACKEND_URL}/insert_review"
     try:
         response = requests.post(request_url, json=data_dict)
         print(response.json())
         return response.json()
-    except:
-        print("Network exception occurred")
+    except Exception as e:
+        print(e + "Network exception occurred")
