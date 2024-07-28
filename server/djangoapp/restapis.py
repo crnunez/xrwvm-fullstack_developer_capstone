@@ -3,6 +3,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from django.conf import settings #puesto por mi
+from django.http import JsonResponse
 
 load_dotenv()
 
