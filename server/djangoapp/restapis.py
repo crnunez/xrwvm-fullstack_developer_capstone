@@ -1,7 +1,11 @@
 import requests
 import os
 from dotenv import load_dotenv
+<<<<<<< HEAD
 from django.conf import settings
+=======
+from django.conf import settings #puesto por mi
+>>>>>>> 5968e54413d29a960675206d34fbb384069bd1f0
 from django.http import JsonResponse
 
 load_dotenv()
@@ -64,5 +68,10 @@ def post_review(data_dict):
         response = requests.post(request_url, json=data_dict)
         print(response.json())
         return response.json()
+<<<<<<< HEAD
     except Exception as e:
         print(e + "Network exception occurred")
+=======
+    except:
+        print("Network exception occurred")
+>>>>>>> 5968e54413d29a960675206d34fbb384069bd1f0
